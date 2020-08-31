@@ -3,7 +3,7 @@ import { View, StyleSheet, StatusBar } from "react-native";
 import { Text, Icon } from "@ui-kitten/components";
 import ContactList from "./ContactList";
 
-export default function ContactPage({ navigation }) {
+export default function ContactPage({ navigation, contacts }) {
   return (
     <View style={styles.root}>
       <View style={styles.backContainer}>
@@ -19,7 +19,7 @@ export default function ContactPage({ navigation }) {
           Contacts
         </Text>
       </View>
-      <ContactList navigation={navigation} />
+      <ContactList navigation={navigation} contacts={contacts} />
     </View>
   );
 }

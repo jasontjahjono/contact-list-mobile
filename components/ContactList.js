@@ -2,12 +2,7 @@ import React from "react";
 import { Button, Icon, List, ListItem } from "@ui-kitten/components";
 import { StyleSheet, View } from "react-native";
 
-const data = new Array(20).fill({
-  title: "Jason Tjahjono",
-  description: "+6287889203779",
-});
-
-export default function ContactList({ navigation }) {
+export default function ContactList({ navigation, contacts }) {
   const renderItemAccessory = (props) => (
     <>
       <Icon {...props} name="phone" style={styles.buttons} fill="#383e56" />
@@ -23,18 +18,18 @@ export default function ContactList({ navigation }) {
 
   const renderItem = ({ item }) => (
     <ListItem
-      title={`${item.title}`}
-      description={`${item.description}`}
+      title={`${item.contact_name}`}
+      description={`${item.phone}`}
       accessoryLeft={renderItemIcon}
       accessoryRight={renderItemAccessory}
       style={styles.item}
-      onPress={() => navigation.navigate("Detail")}
+      onPress={() => navigation.navigate("Detail", { id: item._id })}
     />
   );
 
   return (
     <View style={styles.container}>
-      <List data={data} renderItem={renderItem} />
+      <List data={contacts} renderItem={renderItem} />
     </View>
   );
 }

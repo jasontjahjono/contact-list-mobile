@@ -8,7 +8,7 @@ import {
 import { Text, Button, Icon, Input } from "@ui-kitten/components";
 import useToggleState from "../hooks/useToggleState";
 
-export default function LoginPage({ navigation, title, toggleLogin }) {
+export default function LoginPage({ navigation, title, login, userData }) {
   const [emailInput, setEmailInput] = useState("");
   const [passwordInput, setPasswordInput] = useState("");
   const [secureTextEntry, toggleSecureTextEntry] = useToggleState(true);
@@ -18,8 +18,17 @@ export default function LoginPage({ navigation, title, toggleLogin }) {
     </TouchableWithoutFeedback>
   );
   const handlePress = () => {
-    toggleLogin();
-    navigation.navigate("Home");
+    const user = userData.find(
+      (user) => user.email === emailInput && user.password === passwordInput
+    );
+    setEmailInput("");
+    setPasswordInput("");
+    if (!user) {
+      console.log("Error logging in");
+    } else {
+      login(user);
+      navigation.navigate("Home");
+    }
   };
   return (
     <View style={styles.container}>

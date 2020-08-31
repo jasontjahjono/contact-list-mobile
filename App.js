@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { NavigationContainer } from "@react-navigation/native";
 import { createStackNavigator } from "@react-navigation/stack";
 import * as eva from "@eva-design/eva";
@@ -8,17 +8,50 @@ import { default as theme } from "./theme.json";
 import { default as mapping } from "./mapping.json";
 import { AppLoading } from "expo";
 import * as Font from "expo-font";
+import axios from "axios";
 import LandingPage from "./components/LandingPage";
 import LoginPage from "./components/LoginPage";
 import ContactPage from "./components/ContactPage";
 import ContactDetails from "./components/ContactDetails";
-import useToggleState from "./hooks/useToggleState";
 
 const Stack = createStackNavigator();
 
 function App() {
   const [isReady, setIsReady] = useState(false);
-  const [isLoggedIn, toggleLogin] = useToggleState(true);
+  const [contactData, setContactData] = useState([]);
+  const [userData, setUserData] = useState([]);
+  const [currUser, setCurrUser] = useState("");
+  const [currContacts, setCurrContacts] = useState("");
+  const [isLoggedIn, setLogin] = useState(false);
+  useEffect(() => {
+    axios.get("http://10.0.2.2:5000/users/").then((res) => {
+      setUserData(res.data);
+    });
+    axios.get("http://10.0.2.2:5000/contacts/").then((res) => {
+      setContactData(res.data);
+    });
+  }, []);
+  useEffect(() => {
+    setCurrContacts(
+      contactData.filter((c) => c.username === currUser.username)
+    );
+  }, [isLoggedIn]);
+  const login = (user) => {
+    setCurrUser(user);
+    setLogin(true);
+  };
+  const logout = () => {
+    setCurrUser("");
+    setCurrContacts("");
+    setLogin(false);
+  };
+  const deleteContact = (id) => {
+    axios.delete("http://10.0.2.2:5000/contacts/" + id);
+    const newCurrentData = currContacts.filter((c) => c._id !== id);
+    const newData = contactData.filter((c) => c._id !== id);
+    setCurrContacts(newCurrentData);
+    setContactData(newData);
+  };
   const _cacheResourcesAsync = async () => {
     return Promise.all([
       Font.loadAsync({
@@ -46,15 +79,28 @@ function App() {
             <LandingPage
               {...props}
               isLoggedIn={isLoggedIn}
-              toggleLogin={toggleLogin}
+              logout={logout}
+              currUser={currUser}
             />
           )}
         </Stack.Screen>
         <Stack.Screen name="Login">
-          {(props) => <LoginPage {...props} toggleLogin={toggleLogin} />}
+          {(props) => (
+            <LoginPage {...props} login={login} userData={userData} />
+          )}
         </Stack.Screen>
-        <Stack.Screen name="Contacts" component={ContactPage} />
-        <Stack.Screen name="Detail" component={ContactDetails} />
+        <Stack.Screen name="Contacts">
+          {(props) => <ContactPage {...props} contacts={currContacts} />}
+        </Stack.Screen>
+        <Stack.Screen name="Detail">
+          {(props) => (
+            <ContactDetails
+              {...props}
+              contacts={currContacts}
+              deleteContact={deleteContact}
+            />
+          )}
+        </Stack.Screen>
       </Stack.Navigator>
     </NavigationContainer>
   );

@@ -1,28 +1,58 @@
-import React from "react";
+import React, { useState } from "react";
 import { View, StyleSheet, StatusBar } from "react-native";
-import { Text, ListItem, Icon } from "@ui-kitten/components";
+import {
+  Text,
+  ListItem,
+  Icon,
+  Button,
+  Card,
+  Modal,
+} from "@ui-kitten/components";
 import UserAvatar from "react-native-user-avatar";
 
-export default function ContactDetails({ navigation }) {
+export default function ContactDetails({
+  route,
+  navigation,
+  contacts,
+  deleteContact,
+}) {
+  const [visible, setVisible] = useState(false);
+  const { id } = route.params;
+  const contact = contacts.find((contact) => contact._id === id);
+  const d = new Date(contact.birthday);
+  const birthday = d.toDateString();
+  const handleDelete = () => {
+    deleteContact(id);
+    navigation.navigate("Contacts");
+    setVisible(false);
+  };
   return (
     <View style={styles.container}>
       <View style={styles.backContainer}>
         <Icon
-          style={styles.backIcon}
+          style={styles.icons}
           fill="#383e56"
           name="arrow-back"
           onPress={() => navigation.navigate("Contacts")}
         />
       </View>
+      <View style={styles.deleteContainer}>
+        <Icon
+          style={styles.icons}
+          fill="#383e56"
+          name="trash-2-outline"
+          onPress={() => setVisible(true)}
+        />
+      </View>
       <View style={styles.titleContainer}>
-        <UserAvatar size={80} name="Jason Tjahjono" />
-        <Text category="h5">Jason Tjahjono</Text>
-        <Text category="p2">Alpabit Internship</Text>
+        <UserAvatar size={80} name={contact.contact_name} />
+        <Text category="h5">{contact.contact_name}</Text>
+        <Text category="p2">{contact.work_info}</Text>
       </View>
       <View style={styles.bodyContainer}>
         <ListItem
           title="Phone"
-          description="087889203779"
+          description={contact.phone}
           accessoryLeft={(props) => (
             <Icon {...props} name="phone-outline" fill="#383e56" />
           )}
@@ -32,7 +62,7 @@ export default function ContactDetails({ navigation }) {
       <View style={styles.bodyContainer}>
         <ListItem
           title="Email"
-          description="jason@gmail.com"
+          description={contact.email}
           accessoryLeft={(props) => (
             <Icon {...props} name="email-outline" fill="#383e56" />
           )}
@@ -42,7 +72,7 @@ export default function ContactDetails({ navigation }) {
       <View style={styles.bodyContainer}>
         <ListItem
           title="Birthday"
-          description="25 July 2001"
+          description={birthday}
           accessoryLeft={(props) => (
             <Icon {...props} name="gift-outline" fill="#383e56" />
           )}
@@ -52,13 +82,33 @@ export default function ContactDetails({ navigation }) {
       <View style={styles.bodyContainer}>
         <ListItem
           title="Address"
-          description="Kembang Harum II Blok C6/5, Puri Indah"
+          description={contact.address}
           accessoryLeft={(props) => (
             <Icon {...props} name="home-outline" fill="#383e56" />
           )}
           style={styles.listItem}
         />
       </View>
+      <Modal
+        visible={visible}
+        backdropStyle={styles.backdrop}
+        onBackdropPress={() => setVisible(false)}
+        style={styles.dialogContainer}
+      >
+        <Card disabled={true} style={styles.dialog}>
+          <Text category="h4">Delete Contact?</Text>
+          <Button onPress={handleDelete} style={styles.buttons}>
+            Delete
+          </Button>
+          <Button
+            onPress={() => setVisible(false)}
+            status="info"
+            style={styles.buttons}
+          >
+            Cancel
+          </Button>
+        </Card>
+      </Modal>
     </View>
   );
 }
@@ -70,9 +120,28 @@ const styles = StyleSheet.create({
     left: 20,
     paddingTop: StatusBar.currentHeight,
   },
-  backIcon: {
+  deleteContainer: {
+    position: "absolute",
+    top: 20,
+    right: 20,
+    paddingTop: StatusBar.currentHeight,
+  },
+  dialogContainer: {
+    width: "65%",
+    height: "24%",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  dialog: {
+    flex: 1,
+    alignItems: "center",
+  },
+  icons: {
     width: 32,
     height: 32,
+  },
+  buttons: {
+    marginTop: 8,
   },
   container: {
     flex: 1,
@@ -106,5 +175,8 @@ const styles = StyleSheet.create({
     backgroundColor: "#fff",
     width: "90%",
     height: 60,
+  },
+  backdrop: {
+    backgroundColor: "rgba(0, 0, 0, 0.5)",
   },
 });

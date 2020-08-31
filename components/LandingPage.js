@@ -3,14 +3,19 @@ import React from "react";
 import { StyleSheet, View, TouchableHighlight } from "react-native";
 import { Text } from "@ui-kitten/components";
 
-export default function LandingPage({ navigation, isLoggedIn, toggleLogin }) {
+export default function LandingPage({
+  navigation,
+  isLoggedIn,
+  logout,
+  currUser,
+}) {
   const handlePress = () => {
-    isLoggedIn ? toggleLogin() : navigation.navigate("Login");
+    isLoggedIn ? logout() : navigation.navigate("Login");
   };
   return (
     <View style={styles.container}>
       <View style={[styles.heading, !isLoggedIn && styles.conditionals]}>
-        <Text category="s1">Welcome to</Text>
+        <Text category="s1">Welcome, {currUser.name || "User"}, to</Text>
         <Text category="h1" style={styles.title}>
           Phone Book
         </Text>
